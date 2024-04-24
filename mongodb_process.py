@@ -5,7 +5,7 @@ class DBProcessor:
         #mongoDB connection
         self.client = MongoClient('mongodb://adminUser:adminPassword@54.177.184.253:27017/')
         self.db = self.client['smartcity']
-        self.camera_collection = self.db['camera']
+        self.camera_collection = self.db['iot']
 
         #sql connection
 

@@ -1,4 +1,5 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse
+from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,22 +9,34 @@ import json
 
 @api_view(['POST'])
 def addDevice(request):
-    request_index = request.query_params.get('index')
-    # add device info
-    mongodb = MongoDBProcessor()
-    mysql = MysqlProcessor()
-    deviceInfo = mongodb.get_camera_info(request_index)
-    if mysql.add_device(deviceInfo):
-        return Response('Device added', status=status.HTTP_200_OK)
-    else:
-        return Response('Device already exists', status=status.HTTP_409_CONFLICT)
+    try:
+        station_id = request.data.get('id')
+        print(station_id)
+        if not station_id:
+            return Response({"error": "Station ID is required"}, status=400)
+
+        # Add device info
+        mongodb = MongoDBProcessor()
+        mysql = MysqlProcessor()
+        deviceInfo = mongodb.get_iot_info(station_id)
+        if not deviceInfo:
+            return Response({"error": "Device not found"}, status=404)
+        # return Response(deviceInfo, status=200)
+        if mysql.add_device(deviceInfo):
+            return Response('Device added', status=status.HTTP_200_OK)
+        else:
+            return Response('Device already exists', status=status.HTTP_409_CONFLICT)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
 
 def UpdateDeviceInfo(request):
     request_index = "1"
     # update device info
     mongodb = MongoDBProcessor()
     mysql = MysqlProcessor()
-    deviceInfo = mongodb.get_camera_info(request_index)
+    deviceInfo = mongodb.get_iot_info(request_index)
     mysql.update_device_info(deviceInfo)
     
     return HttpResponse('Device info updated')
@@ -46,12 +59,25 @@ def GetALLDevices(request):
     devices = db.get_all_devices()
     return Response(devices, status=status.HTTP_200_OK)
 
+def GetSearchedDevices(request):
+    try:
+        search = request.GET.get('search')
+        print(search)
+        # get searched devices info
+        mongodb = MongoDBProcessor()
+        devices = mongodb.search_iot_info(search)
+
+        return JsonResponse(devices, safe=False)
+    except Exception as e:
+        print(e)
+        return JsonResponse({'error': str(e)}, status=500)
+
 @api_view(['DELETE'])
 def deleteDevice(request):
-    request_index = request.query_params.get('index')
+    id = int(request.query_params.get('id'))
     # delete device info
     db = MysqlProcessor()
-    if db.delete_device(request_index):
+    if db.delete_device(id):
         return Response('Device deleted', status=status.HTTP_200_OK)
     else:
         return Response('Device not found', status=status.HTTP_404_NOT_FOUND)

@@ -10,5 +10,6 @@ urlpatterns = [
     path('UpdateImage/', views.updateImage),
     path('DisableDevice/', views.disableDevice),
     path('GetDeviceOfDistrict/', views.get_device_of_district),
+    path('SearchedDevice/', views.GetSearchedDevices),
 ]
 

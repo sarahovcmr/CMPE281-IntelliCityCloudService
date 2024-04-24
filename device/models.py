@@ -2,15 +2,13 @@ from django.db import models
 
 # Create your models here.
 class Device(models.Model):
-    id = models.AutoField(primary_key=True)
+    station_id = models.IntegerField(primary_key=True)
+    address = models.CharField(max_length=48, null=True)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    index = models.CharField(max_length=12)
-    time = models.DateTimeField(auto_now=True)
-    image_url = models.CharField(max_length=500)
-    address = models.CharField(max_length=100)
-    district = models.CharField(max_length=12)
+    district = models.IntegerField()
+    hourlySpeed = models.CharField(max_length=512, null=True)
     enabled = models.BooleanField(default=True)
-    
+
     class Meta:
-        db_table = 'cameras'
+        db_table = 'iots'
