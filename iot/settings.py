@@ -64,6 +64,7 @@ CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
     "http://localhost:8000",
 ]
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'iot.urls'
 
@@ -102,6 +103,7 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
+AUTH_USER_MODEL = 'device.User'
 
 AUTH_PASSWORD_VALIDATORS = [
     {

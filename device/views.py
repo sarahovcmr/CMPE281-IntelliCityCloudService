@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponse
+from .models import User
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -6,6 +7,32 @@ from rest_framework import status
 from .mongodb import MongoDBProcessor
 from .mysql import MysqlProcessor
 import json
+
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+
+
+
+
+@api_view(['POST'])
+def login_view(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+    try:
+        user = User.objects.get(email=email)
+        if user.password == password:
+            user_data = {
+                "token": "1234567890",
+                "email": user.email,
+                "firstname": user.firstname,
+                "lastname": user.lastname,
+                "is_agent": user.is_agent,
+            }
+            return Response(json.dumps(user_data), status=200)
+        else:
+            return JsonResponse({'message': 'Invalid password'}, status=400)
+    except User.DoesNotExist:
+        return JsonResponse({'message': 'User not found'}, status=404)
 
 @api_view(['POST'])
 def addDevice(request):
