@@ -37,7 +37,20 @@ class MongoDBProcessor:
 
     # Search by station_id or freeway or district
     def search_iot_info(self, search):
-        iot_info = self.iot_collection.find({'$or': [{'station_id': int(search)}, {'Fwy': int(search)}, {'District': search}]}).limit(100)
+
+        if search.strip() == '':
+            return []
+        try:
+            search_int = int(search)
+        except ValueError:
+            search_int = None
+
+        query = {'$or': []}
+        if search_int is not None:
+            query['$or'].extend([{'station_id': search_int}, {'Fwy': search_int}])
+        query['$or'].append({'District': search})
+
+        iot_info = self.iot_collection.find(query).limit(100)
         iot_data = []
         for iot in iot_info:
             station_id = iot['station_id']
